@@ -14,12 +14,18 @@ const todoReducer = (
   switch (action.type) {
     case ActionType.GET_TODO_LISTS:
       return action.payload;
+    case ActionType.ADD_TODO_ITEM_TO_LIST:
+      return action.payload;
+    case ActionType.DELETE_TODO_ITEM_FROM_LIST:
+      return action.payload;
+    case ActionType.CHECK_TODO_ITEM_IN_LIST:
+      return action.payload;
     case ActionType.GET_TODO_LIST_BY_ID:
       return;
     case ActionType.DELETE_TODO_LIST_BY_ID:
       return;
     case ActionType.ADD_TODO_LIST:
-      return;
+      return action.payload;
     case ActionType.UPDATE_TODO_LIST:
       return;
     case ActionType.GET_TODO_ITEMS:

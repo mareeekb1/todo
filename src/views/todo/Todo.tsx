@@ -21,26 +21,23 @@ import {
   addTodoList,
   fetchTodoLists,
 } from "../../redux/actions/todoList.actions";
-import { todos } from "../../utils/dummy";
-// import { TodosList } from "../../redux/models/todos.model";
+import Loader from "../../components/shared/Loader";
+import { TodosList } from "../../redux/models/todos.model";
+import { fetchLabels } from "../../redux/actions/label.action";
 
 const Todo = () => {
   const todoSelector = useAppSelector((state) => state.todo);
+  const labelOptions = useAppSelector((state) => state.label);
   const dispatch = useAppDispatch();
-  const [data, setData] = useState(todos);
-  // const [data, setData] = useState<TodoReducer>(todoSelector);
+  const [data, setData] = useState<TodoReducer>(todoSelector);
   const [view, setView] = useState(0);
   const [search, setSearch] = useState("");
   const [labels, setLabels] = useState<string[]>([]);
   const [tab, setTab] = useState(0);
   const [dialog, setDialog] = useState(false);
-  const [form, setForm] = useState({
-    title: "",
-    items: [],
-    isActive: true,
-    labels: [],
-    milestone: null,
-  });
+
+  const [isProcessing, setIsProcessing] = useState(false);
+  const [title, setTitle] = useState("");
 
   const handleDialogOpen = useCallback(() => {
     setDialog(true);
@@ -67,9 +64,14 @@ const Todo = () => {
     } = event;
     setLabels(typeof value === "string" ? value.split(",") : value);
   };
+  const handleTitle = useCallback(
+    (e: { target: { value: React.SetStateAction<string> } }) => {
+      setTitle(e.target.value);
+    },
+    []
+  );
   function filterData() {
-    // let result = data.data;
-    let result = data;
+    let result = data.data;
     if (tab !== 2)
       result = result.filter((item) => {
         return (item.isActive && tab === 0) || (!item.isActive && tab === 1);
@@ -80,76 +82,97 @@ const Todo = () => {
       );
     for (const label of labels) {
       result = result.filter((item) => {
-        let array = item.labels.map((m) => m.name.toLowerCase());
-        return array.includes(label.toLowerCase());
+        let array = item?.labels?.map((m) => m.name.toLowerCase());
+        return array?.includes(label.toLowerCase());
       });
     }
     return result;
   }
 
-  // useEffect(() => {
-  //   if (data.isLoading) {
-  //     dispatch(fetchTodoLists());
-  //     setData(todoSelector);
-  //   }
-  // }, [todoSelector]);
+  useEffect(() => {
+    if (data.isLoading) {
+      dispatch(fetchTodoLists());
+      dispatch(fetchLabels());
+      setData(todoSelector);
+    }
+  }, [todoSelector]);
 
   function handleCancel() {
-    setForm({
-      title: "",
-      items: [],
-      isActive: true,
-      labels: [],
-      milestone: null,
-    });
+    setTitle("");
     setDialog(false);
   }
+  //ADD NEW TODO LIST
   async function handleAdd() {
-    // await dispatch(addTodoList(form));
-    // setForm({
-    //   title: "",
-    //   items: [],
-    //   isActive: true,
-    //   labels: [],
-    //   milestone: null,
-    // });
-    // setDialog(false);
-    console.log("add");
+    setIsProcessing(true);
+    await dispatch(addTodoList(title))
+      .then((response) => updateData(response, "add"))
+      .catch((er) => console.log(er));
+    setIsProcessing(false);
+    setTitle("");
+    setDialog(false);
   }
-  // function load(id: string | undefined | number) {
-  //   setData((prev) => ({
-  //     ...prev,
-  //     data: prev.data.filter((x) => x.id !== id),
-  //   }));
-  // }
+
+  function updateData(todo: TodosList, action: string) {
+    switch (action) {
+      case "add":
+        return setData({
+          ...data,
+          data: data.data.concat(todo) as TodosList[],
+        });
+      case "del":
+        return setData({
+          ...data,
+          data: data.data.filter((x) => x.id === todo.id) as TodosList[],
+        });
+      case "upd":
+        let array = data.data.map((x) => {
+          if (x.id === todo.id) x = todo;
+          return x;
+        });
+        setData({
+          ...data,
+          data: array as TodosList[],
+        });
+      default:
+        console.log(todo);
+    }
+  }
 
   return (
     <Grid container spacing={2}>
       <Dialog onClose={handleDialogClose} open={dialog}>
-        <DialogTitle>Add milestone</DialogTitle>
-        <DialogContent>
-          <TextField
-            fullWidth
-            sx={{ mt: 2, mb: 2 }}
-            value={form.title}
-            label="Title"
-            onChange={(e) => setForm({ ...form, title: e.target.value })}
-          />
-        </DialogContent>
-        <DialogActions>
-          <Button onClick={() => handleCancel()}>Cancel</Button>
-          <Button
-            variant="contained"
-            disabled={!form.title.length}
-            onClick={() => handleAdd()}
-          >
-            Create
-          </Button>
-        </DialogActions>
+        <DialogTitle>Add ToDo list</DialogTitle>
+        {isProcessing ? (
+          <DialogContent>
+            <Loader />
+          </DialogContent>
+        ) : (
+          <>
+            <DialogContent>
+              <TextField
+                fullWidth
+                sx={{ mt: 2, mb: 2 }}
+                value={title}
+                label="Title"
+                onChange={handleTitle}
+              />
+            </DialogContent>
+            <DialogActions>
+              <Button onClick={() => handleCancel()}>Cancel</Button>
+              <Button
+                variant="contained"
+                disabled={!title.length}
+                onClick={() => handleAdd()}
+              >
+                Create
+              </Button>
+            </DialogActions>
+          </>
+        )}
       </Dialog>
       <TitleHeader
         title="ToDos"
-        buttonText="Add ToDo"
+        buttonText="Add ToDo list"
         search
         searchText="Filter"
         handleSearch={handleFilterChange}
@@ -161,6 +184,7 @@ const Todo = () => {
           onLabelChange={handleLabel}
           tab={tab}
           labels={labels}
+          labelOptions={labelOptions.data}
         />
       </Grid>
       <Grid item xs={12}>
@@ -182,8 +206,26 @@ const Todo = () => {
         </ButtonGroup>
       </Grid>
       <Grid item xs={12} sx={{ width: "100%" }}>
-        {view === 0 && <ListView data={filterData()} />}
-        {view === 1 && <BoardView data={filterData()} />}
+        {data.isLoading ? (
+          <Loader />
+        ) : (
+          <>
+            {view === 0 && (
+              <ListView
+                data={filterData()}
+                updateData={updateData}
+                labelOptions={labelOptions.data}
+              />
+            )}
+            {view === 1 && (
+              <BoardView
+                data={filterData()}
+                updateData={updateData}
+                labelOptions={labelOptions.data}
+              />
+            )}
+          </>
+        )}
       </Grid>
     </Grid>
   );

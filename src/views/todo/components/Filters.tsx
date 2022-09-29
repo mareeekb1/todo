@@ -1,5 +1,6 @@
 import { Box, Button, ButtonGroup, SelectChangeEvent } from "@mui/material";
 import React from "react";
+import { Label } from "../../../redux/models/labels.model";
 import LabelSelector from "./LabelSelector";
 
 interface IFilters {
@@ -10,9 +11,16 @@ interface IFilters {
   ) => void;
   tab: number;
   labels: string[];
+  labelOptions: Label[];
 }
 
-const Filters = ({ tab, onTabChange, onLabelChange, labels }: IFilters) => {
+const Filters = ({
+  tab,
+  onTabChange,
+  onLabelChange,
+  labels,
+  labelOptions,
+}: IFilters) => {
   //Active-0,NotActive-1,ALL-2
   return (
     <Box>
@@ -27,7 +35,11 @@ const Filters = ({ tab, onTabChange, onLabelChange, labels }: IFilters) => {
           All
         </Button>
       </ButtonGroup>
-      <LabelSelector onChange={onLabelChange} labels={labels} />
+      <LabelSelector
+        onChange={onLabelChange}
+        labels={labels}
+        options={labelOptions}
+      />
     </Box>
   );
 };

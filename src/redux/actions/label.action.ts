@@ -46,32 +46,33 @@ const getLabelById =
 
 const deleteLabel =
   (id: number | string | undefined) => async (dispatch: Dispatch<Action>) => {
-    let result = null;
     if (!id) return;
-    await axios
-      .delete(api.labels + "/" + id)
-      .then((response) => {
-        dispatch({
-          type: ActionType.DELETE_LABEL_BY_ID,
-          payload: id,
-        });
-        result = response.data[0];
-      })
-      .catch((error) => console.log(error));
-    fetchLabels();
-    return result;
+    return new Promise((resolve, reject) => {
+      axios
+        .delete(api.labels + "/" + id)
+        .then((response) => {
+          dispatch({
+            type: ActionType.DELETE_LABEL_BY_ID,
+            payload: id,
+          });
+          resolve(response);
+        })
+        .catch((error) => reject(error));
+    });
   };
 const addLabel = (label: Label) => async (dispatch: Dispatch<Action>) => {
-  await axios
-    .post(api.labels, label)
-    .then((response) => {
-      dispatch({
-        type: ActionType.ADD_LABEL,
-        payload: response.data,
-      });
-    })
-    .catch((error) => console.log(error));
-  fetchLabels();
+  return new Promise<Label>((resolve, reject) => {
+    axios
+      .post(api.labels, label)
+      .then((response) => {
+        dispatch({
+          type: ActionType.ADD_LABEL,
+          payload: response.data,
+        });
+        resolve(response.data);
+      })
+      .catch((error) => reject(error));
+  });
 };
 const updateLabel = (label: Label) => async (dispatch: Dispatch<Action>) => {
   let result = null;

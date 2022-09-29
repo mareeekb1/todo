@@ -9,10 +9,10 @@ export interface Todos extends DataModel {
   isDone: boolean;
 }
 export interface TodosList extends DataModel {
-  items: Todos[];
+  items?: Todos[];
   title: string;
-  labels: Label[];
-  milestone: Milestone;
+  labels?: Label[];
+  milestone?: Milestone | null;
   isActive: boolean;
 }
 export interface TodoDataList {

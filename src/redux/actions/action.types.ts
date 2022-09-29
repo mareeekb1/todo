@@ -32,6 +32,12 @@ export enum ActionType {
   ADD_TODO_LIST = "ADD_TODO_LIST",
   DELETE_TODO_LIST_BY_ID = "DELETE_TODO_LIST_BY_ID",
   UPDATE_TODO_LIST = "UPDATE_TODO_LIST",
+
+  ADD_TODO_ITEM_TO_LIST = "ADD_TODO_ITEM_TO_LIST",
+  DELETE_TODO_ITEM_FROM_LIST = "DELETE_TODO_ITEM_FROM_LIST",
+  CHECK_TODO_ITEM_IN_LIST = "ADD_TODO_ITEM_IN_LIST",
+  HANDLE_LABEL_IN_TODO_LIST = "HANDLE_LABEL_IN_TODO_LIST",
+  HANDLE_TODO_LIST_ACTIVE = "HANDLE_TODO_LIST_ACTIVE",
 }
 
 interface GetLabelsAction {
@@ -44,6 +50,7 @@ interface GetLabelByIdAction {
 }
 interface AddLabelAction {
   type: ActionType.ADD_LABEL;
+  payload: Label[];
 }
 interface DeleteLabelAction {
   type: ActionType.DELETE_LABEL_BY_ID;
@@ -101,6 +108,7 @@ interface GetTodoByIdAction {
 }
 interface AddTodoAction {
   type: ActionType.ADD_TODO_LIST;
+  payload: TodoReducer;
 }
 interface DeleteTodoAction {
   type: ActionType.DELETE_TODO_LIST_BY_ID;
@@ -108,6 +116,27 @@ interface DeleteTodoAction {
 }
 interface UpdateTodoAction {
   type: ActionType.UPDATE_TODO_LIST;
+}
+
+interface AddTodoItemToListAction {
+  type: ActionType.ADD_TODO_ITEM_TO_LIST;
+  payload: TodoReducer;
+}
+interface DeleteTodoItemFromListAction {
+  type: ActionType.DELETE_TODO_ITEM_FROM_LIST;
+  payload: TodoReducer;
+}
+interface CheckTodoItemtAction {
+  type: ActionType.CHECK_TODO_ITEM_IN_LIST;
+  payload: TodoReducer;
+}
+interface HandleLabelInTodoListAction {
+  type: ActionType.HANDLE_LABEL_IN_TODO_LIST;
+  payload: TodoReducer;
+}
+interface HandleTodoListActivationAction {
+  type: ActionType.HANDLE_TODO_LIST_ACTIVE;
+  payload: TodoReducer;
 }
 
 export type Action =
@@ -130,4 +159,9 @@ export type Action =
   | GetTodoByIdAction
   | AddTodoAction
   | DeleteTodoAction
-  | UpdateTodoAction;
+  | UpdateTodoAction
+  | AddTodoItemToListAction
+  | DeleteTodoItemFromListAction
+  | CheckTodoItemtAction
+  | HandleLabelInTodoListAction
+  | HandleTodoListActivationAction;

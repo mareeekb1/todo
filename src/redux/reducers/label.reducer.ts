@@ -23,7 +23,7 @@ const labelReducer = (
         isLoading: true,
       };
     case ActionType.ADD_LABEL:
-      return;
+      return action.payload;
     case ActionType.UPDATE_LABEL:
       return;
     default:

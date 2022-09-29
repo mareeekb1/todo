@@ -16,7 +16,9 @@ const ListView = ({ data, load }: Props) => {
 
   async function handleDeleteLabel(id: string | undefined | number) {
     setIsProcessing(true);
-    await dispatch(deleteLabel(id));
+    await dispatch(deleteLabel(id))
+      .then((response) => console.log(response))
+      .catch((err) => console.log(err));
     setIsProcessing(false);
     load(id);
   }

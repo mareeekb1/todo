@@ -43,7 +43,6 @@ const getTodoItemById =
       .catch((error) => console.log(error));
     return result;
   };
-
 const deleteTodoItem =
   (id: number | string) => async (dispatch: Dispatch<Action>) => {
     let result = null;

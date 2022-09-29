@@ -22,6 +22,7 @@ const Labels = () => {
   const [data, setData] = useState<LabelReducer>(labelsSelector);
   const [filter, setFilter] = useState("");
   const [dialog, setDialog] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
   const [form, setForm] = useState({
     name: "",
     color: "",
@@ -68,9 +69,13 @@ const Labels = () => {
     setDialog(false);
   }
   async function handleAdd() {
-    await dispatch(addLabel(form));
+    setIsProcessing(true);
+    await dispatch(addLabel(form))
+      .then((resp) => setData({ ...data, data: data.data.concat(resp) }))
+      .catch((err) => console.log(err));
     setForm({ name: "", color: "" });
     setDialog(false);
+    setIsProcessing(false);
   }
 
   return (
@@ -78,20 +83,26 @@ const Labels = () => {
       <Dialog onClose={handleDialogClose} open={dialog}>
         <DialogTitle>Add label</DialogTitle>
         <DialogContent>
-          <TextField
-            fullWidth
-            sx={{ mt: 2, mb: 2 }}
-            value={form.name}
-            label="Label name"
-            onChange={(e) => setForm({ ...form, name: e.target.value })}
-          />
-          <CirclePicker onChangeComplete={(e, c) => handleChange(e, c)} />
+          {isProcessing ? (
+            <Loader />
+          ) : (
+            <>
+              <TextField
+                fullWidth
+                sx={{ mt: 2, mb: 2 }}
+                value={form.name}
+                label="Label name"
+                onChange={(e) => setForm({ ...form, name: e.target.value })}
+              />
+              <CirclePicker onChangeComplete={(e, c) => handleChange(e, c)} />
+            </>
+          )}
         </DialogContent>
         <DialogActions>
           <Button onClick={() => handleCancel()}>Cancel</Button>
           <Button
             variant="contained"
-            disabled={!form.name.length || !form.color.length}
+            disabled={!form.name.length || !form.color.length || isProcessing}
             onClick={() => handleAdd()}
           >
             Create

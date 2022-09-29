@@ -7,6 +7,7 @@ import FormControl from "@mui/material/FormControl";
 import Select, { SelectChangeEvent } from "@mui/material/Select";
 import Chip from "@mui/material/Chip";
 import { labels as dummy } from "../../../utils/dummy";
+import { Label } from "../../../redux/models/labels.model";
 
 const ITEM_HEIGHT = 48;
 const ITEM_PADDING_TOP = 8;
@@ -24,9 +25,14 @@ interface ILabelSelector {
     child: React.ReactNode
   ) => void;
   labels: string[];
+  options: Label[];
 }
 
-export default function LabelSelector({ onChange, labels }: ILabelSelector) {
+export default function LabelSelector({
+  onChange,
+  labels,
+  options,
+}: ILabelSelector) {
   return (
     <Box>
       <FormControl sx={{ width: "100%", mt: 2 }}>
@@ -49,7 +55,7 @@ export default function LabelSelector({ onChange, labels }: ILabelSelector) {
           )}
           MenuProps={MenuProps}
         >
-          {dummy.map(({ name }, key) => (
+          {options.map(({ name }, key) => (
             <MenuItem key={key} value={name}>
               {name}
             </MenuItem>
